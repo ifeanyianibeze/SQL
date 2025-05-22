@@ -1,0 +1,62 @@
+SELECT * FROM BIT_DB.customers 
+SELECT * FROM BIT_DB.JanSales 
+SELECT * FROM FebSales LIMIT 5
+--QUESTION 1 (How many many unique orders were placed in January? In other words, how many distinct order ids do we have?
+SELECT COUNT (DISTINCT orderID)
+FROM JanSales
+WHERE length(orderId) = 6
+
+AND orderID <> 'Order ID' ;
+
+
+--QUESTION 2 (How many of those orders were for an iPhone?
+SELECT COUNT (DISTINCT orderID) 
+FROM JanSales
+WHERE length(orderId) = 6
+
+AND orderID <> 'Order ID'
+AND JanSales.Product = 'iPhone' ;
+
+--QUESTION 3 (Select the customer account numbers for all the orders that were placed in February)
+SELECT DISTINCT customers.acctnum
+FROM customers 
+INNER JOIN FebSales ON customers.order_id= FebSales.orderID
+WHERE length(orderId) = 6
+
+AND orderID <> 'Order ID' ;
+
+--QUESTION 4 (Which product was the cheapest one sold in January, and what was the price?
+SELECT DISTINCT Product, price
+FROM JanSales
+WHERE price in (SELECT MIN(price) FROM JanSales) ; 
+-- OR
+SELECT distinct product, price
+FROM BIT_DB.JanSales
+ORDER BY price ASC LIMIT 1;
+--QUESTION 5 What is the total revenue for each product sold in January?
+--(Revenue can be calculated using the number of products sold and the price of the products)
+SELECT DISTINCT Product,SUM(Quantity * price) AS revenue
+FROM JanSales 
+WHERE orderID <> 'order ID' AND length(OrderID) = 6
+GROUP BY Product;
+--Question 6 Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue?
+  SELECT Product,SUM( Quantity), SUM(Quantity * price) AS revenue
+  FROM FebSales WHERE location  like '%548 Lincoln%'
+  AND orderID <> 'orderID'
+  AND Length(orderID) = 6
+  GROUP BY Product;
+  
+--Question 7 --How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers?
+SELECT COUNT (*) AS num_of_cus,
+avg(amnt_spent)
+FROM (
+    SELECT SUM(price * Quantity) AS amnt_spent
+    FROM FebSales 
+   WHERE orderID <> 'orderID'
+    AND LENGTH( orderID)=6
+    GROUP BY orderID 
+    HAVING SUM(Quantity) > 2 );
+    
+
+
+
