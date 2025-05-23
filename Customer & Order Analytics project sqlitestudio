@@ -67,6 +67,13 @@ FROM (
     AND LENGTH( orderID)=6
     GROUP BY orderID 
     HAVING SUM(Quantity) > 2 );
+
+
+-- QUESTION 8  List all the products sold in Los Angeles in February, and include how many of each were sold.
+  SELECT distinct Product, SUM(Quantity) AS amount_sold
+FROM FebSales
+WHERE location like '%Los Angeles%'
+GROUP BY Product;
     
 
 
