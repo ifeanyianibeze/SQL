@@ -1,0 +1,110 @@
+## FOR THIS PROJECT, I WILL BE QUERYING DATA FROM A DATABASE, 'CHINOOK', TO ANSWER VARIOUS QUESTIONS INVOLVING INVOICES, EMPLOYEES,MUSIC, etc,THAT COVERS EVERYTHING I'VE LEARNED IN SQL
+
+
+--Show Customers (their full names, customer ID, and country) who are not in the US.
+
+SELECT FirstName, LastName, CustomerID, Country 
+FROM customers
+WHERE Country <> 'USA' ;
+
+--Show only the Customers from Brazil.
+SELECT DISTINCT FirstName,LastName from customers
+where country ='Brazil';
+
+
+
+--Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country.
+SELECT FirstName, LastName, Invoiceid, InvoiceDate, BillingCountry
+FROM Customers
+JOIN invoices
+ON Customers.CustomerId = invoices.CustomerId
+WHERE Country = 'Brazil'
+;
+
+
+
+--Show the Employees who are Sales Agents.
+SELECT distinct FirstName, LastName, Title
+From employees
+WHERE Title like '%Agent' ;
+
+
+--Find a unique/distinct list of billing countries from the Invoice table.
+SELECT DISTINCT BillingCountry FROM Invoices;
+
+--Provide a query that shows the invoices associated with each sales agent.
+ --The resulting table should include the Sales Agent's full name.
+SELECT distinct e.FirstName, e.LastName, Title, InvoiceId
+FROM employees e
+JOIN customers cus on  e.EmployeeId=cus.SupportRepId
+JOIN invoices i on i.CustomerId= cus.CustomerId
+where Title like '% Agent%' ;
+
+
+--Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+SELECT DISTINCT i.Total,cus.FirstName, cus.LastName, cus.Country, emp.FirstName AS sales_agent_first, emp.LastName AS sales_agent_last
+FROM customers cus
+JOIN employees emp on cus.supportRepId=emp.EmployeeId
+JOIN invoices i on cus.customerID= i.customerId
+WHERE emp.Title LIKE '%sales support agent%' ;
+
+
+--How many Invoices were there in 2009?
+SELECT COUNT (*)
+FROM invoices
+WHERE InvoiceDate like '2009%';
+
+
+
+--What are the total sales for 2009?
+SELECT SUM(Total) as '2009_sales'
+FROM invoices
+WHERE InvoiceDate like '2009%';
+
+
+select* from tracks limit 6;
+select* from invoice_items
+
+--Write a query that includes the purchased track name with each invoice line ID.
+select t.Name as track_name, ii.InvoiceLineId
+From tracks t
+join invoice_items ii
+on t.TrackId= ii.TrackId
+
+
+
+select * from artists
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+select t.Name as track_name,a.Name, ii.InvoiceLineId
+From tracks t
+join invoice_items ii on t.TrackId=ii.TrackId
+join albums al on al.AlbumId = t.AlbumId
+join artists a on a.ArtistId = al.AlbumId
+
+select * from invoices
+select * from customers
+select * from employees
+--Show the total sales made by each sales agent.
+SELECT SUM(i.Total) as sales_agent_total_sales, emp.LastName, emp.FirstName
+FROM employees emp 
+JOIN customers cus ON cus.SupportRepId= emp.EmployeeId
+Join invoices i ON i.CustomerId= cus.CustomerId
+WHERE emp.Title = 'Sales Support Agent'
+GROUP BY emp.LastName, emp.FirstName ; 
+
+
+--Which sales agent made the most dollars in sales in 2009?
+with TempTable as
+ (SELECT i.Total as sales_agent_total_sales, emp.LastName, emp.FirstName
+FROM employees emp 
+JOIN customers cus ON cus.SupportRepId= emp.EmployeeId
+Join invoices i ON i.CustomerId= cus.CustomerId
+WHERE emp.Title = 'Sales Support Agent'
+AND InvoiceDate like '2009%' ) 
+
+SELECT sum(sales_agent_total_sales),LastName,FirstName
+FROM TempTable
+GROUP BY LastName, FirstName
+ORDER BY sales_agent_total_sales desc
+LIMIT 1;
